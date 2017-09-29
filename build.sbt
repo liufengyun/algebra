@@ -126,7 +126,7 @@ lazy val core = crossProject
   .settings(algebraSettings: _*)
   .settings(sourceGenerators in Compile += (sourceManaged in Compile).map(Boilerplate.gen).taskValue)
 
-lazy val coreJVM = core.jvm
+lazy val coreJVM = core.jvm.settings(dottySettings)
 lazy val coreJS = core.js
 
 lazy val laws = crossProject
@@ -257,3 +257,9 @@ credentials ++= (for {
   username <- Option(System.getenv().get("SONATYPE_USERNAME"))
   password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
 } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)).toSeq
+
+lazy val dottySettings = List(
+  scalaVersion := dottyLatestNightlyBuild.get,
+  libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value)),
+  scalacOptions := List("-language:Scala2")
+)
